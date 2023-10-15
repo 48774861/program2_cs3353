@@ -1,5 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <unordered_map>
+#include <string>
+#include <stdexcept>
 
 using namespace std;
 
@@ -14,10 +18,15 @@ public:
 ostream& operator<<(ostream&, const Link&);
 
 class MyGraph {
-
+private:
+   vector< unordered_map<int, double> > adjacency_list;
+   int numberOfVertices;
+   int numberOfEdges;
 public:
    MyGraph();
+   MyGraph(int n);
    MyGraph(const MyGraph&);
+   MyGraph(string&&);
 
    bool addEdge(int a, int b, float w);
    void output(ostream& os);

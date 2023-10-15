@@ -10,7 +10,6 @@ int main()
    ifstream ifile("test2_1.txt");
    int n, e;
    vector<float> satcost;
-	//Declare MyGraph up here then add to a min heap.
    ifile >> n >> e;
 
    vector<Link> l, l2;
@@ -31,29 +30,36 @@ int main()
 	   test.push_back(s);
 	}
 
+	MyGraph graph("test2_1.txt");
+	graph.output(std::cout);
+
+	graph.addEdge(77, 55, 3);
+	graph.addEdge(2, 33, 3);
+	graph.output(std::cout);
+
    MyHelper helper;
 
-   vector<Link>  res1 = Task1(n, l, helper);
+//    vector<Link>  res1 = Task1(n, l, helper);
 
-   for (int i = 0; i < res1.size(); i++)
-	{
-	   cout << "(" << res1[i] << "),  ";
-	}
-   cout << "\n";
+//    for (int i = 0; i < res1.size(); i++)
+// 	{
+// 	   cout << "(" << res1[i] << "),  ";
+// 	}
+//    cout << "\n";
 
-   for (int i = 0; i < m; i++)
-	{
-   	   pair<bool, Link> res2 = Task2(n, l2, test[i], helper);
-	   cout << "(" << test[i] << ") : ";
-	   if (res2.first)
-		{
-		   cout << "replaced edge: " <<  "(" << res2.second << ") ";
-		}
-	   else
-		{
-		   cout << "not replaced";
-		}
-	  cout << endl;
-	}
+//    for (int i = 0; i < m; i++)
+// 	{
+//    	   pair<bool, Link> res2 = Task2(n, l2, test[i], helper);
+// 	   cout << "(" << test[i] << ") : ";
+// 	   if (res2.first)
+// 		{
+// 		   cout << "replaced edge: " <<  "(" << res2.second << ") ";
+// 		}
+// 	   else
+// 		{
+// 		   cout << "not replaced";
+// 		}
+// 	  cout << endl;
+// 	}
 
 }
