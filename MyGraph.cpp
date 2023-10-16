@@ -28,42 +28,30 @@ MyGraph::MyGraph(const MyGraph& graph2)
    this->numberOfEdges = graph2.numberOfEdges;
 }
 
-// Forms the graph from a file.  Assumes there are no repeat edges in the file or edges that point to themselves.
-MyGraph::MyGraph(string&& fileName)
+// Forms the graph from a file.  Assumes there are no repeat edges in the file.
+MyGraph::MyGraph(vector<Link>& pipes, int n)
 {
-   // Executes in the build file, so you need to go one layer out.
-   ifstream ifile("../" + fileName);
-   if(!ifile.is_open()) {
-      throw std::invalid_argument("File cannot be opened!");
-   }
-   // Resets the input file to the beginning.
-   ifile.clear();
-   ifile.seekg(0, std::ios::beg);
-
-   int n, e;
-   ifile >> n >> e;
-
    adjacency_list.resize(n + 1);
    numberOfVertices = n;
-   numberOfEdges = e;
+   numberOfEdges = pipes.size();
 
-   int v1, v2;
-   double weight;
-   for (int i = 0; i < e; i++) {
-	   ifile >> v1 >> v2 >> weight;
-      adjacency_list.at(v1).insert(std::make_pair(v2, weight));
-      adjacency_list.at(v2).insert(std::make_pair(v1, weight));
+   for (auto& pipe : pipes) {
+      adjacency_list.at(pipe.v1).insert(std::make_pair(pipe.v2, pipe));
+      adjacency_list.at(pipe.v2).insert(std::make_pair(pipe.v1, pipe));
 	}
-   ifile.close();
 }
 
-// Adds an edge if it is not already found in the adjacency list.  Still can add edges that point to themselves.
+// Adds an edge if it is not already found in the adjacency list.
 // Checks for if the vertices are out of range.
 bool MyGraph::addEdge(int a, int b, float w)
 {
-   if(!(a < 0 || a > adjacency_list.size() || adjacency_list.at(a).find(b) == adjacency_list.at(a).end())) {
-      adjacency_list.at(a).insert(std::make_pair(b, w));
-      adjacency_list.at(b).insert(std::make_pair(a, w));
+   if(a <= 0 || a > numberOfVertices || b <= 0 || b > numberOfVertices) {
+      return false;
+   }
+   if(adjacency_list.at(a).find(b) == adjacency_list.at(a).end()) {
+      Link link(a, b, w);
+      adjacency_list.at(a).insert(std::make_pair(b, link));
+      adjacency_list.at(b).insert(std::make_pair(a, link));
       numberOfEdges++;
       return true;
    }
@@ -79,11 +67,11 @@ void MyGraph::output(ostream& os)
    // Must get the number of vertices from the variable because actual size of vector is +1 because vertices start numbering from 0.
    os << numberOfVertices;
 
-   for(int v1 = 0; v1 < adjacency_list.size(); v1++) {
+   for(int v1 = 0; v1 < int(adjacency_list.size()); v1++) {
       // Prints all edges with the smaller vertex before the larger vertex.
       for(auto& edge : adjacency_list.at(v1)) {
          if(edge.first > v1) {
-            os << "\n" << v1 << " " << edge.first << " " << edge.second;
+            os << "\n" << edge.second;
          }
       }
    }
@@ -94,27 +82,64 @@ void MyGraph::output(ostream& os)
 // Returns false if at least one vertex is out of bounds or if there is not an edge with those vertices.
 pair<bool, float> MyGraph::weight(int a, int b)
 {
-   if((a < 0) || a > adjacency_list.size() || adjacency_list.at(a).find(b) == adjacency_list.at(a).end()) {
+   if(a <= 0 || a > numberOfVertices || b <= 0 || b > numberOfVertices) {
       return std::make_pair(false, -69420);
    }
-   return std::make_pair(true, adjacency_list.at(a).at(b));
+   if(adjacency_list.at(a).find(b) == adjacency_list.at(a).end()) {
+      return std::make_pair(false, -69420);
+   }
+   return std::make_pair(true, adjacency_list.at(a).at(b).w);
 }
 
 MyHelper::MyHelper()
 {
 }
+void MyHelper::buildGraph(vector<Link>& pipes, int n)
+{
+   graph = MyGraph(pipes, n);
+}
+void MyHelper::output_graph() {
+   graph.output(std::cout);
+}
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
 {
+   helper.buildGraph(pipes, n);
    vector<Link> res = pipes;
    return res;
 }
 
-pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper)
+pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper) //Make MyHelper pass by value later!
 {
-  Link l1;
-  pair<bool, Link> sol;
-  sol.first = true;
-  sol.second = newPipe;
-  return sol;
+   // Properly tested for the given input file.
+   
+   Link& l1 = helper.graph.findHighestWeightOnPath(newPipe.v1, newPipe.v2);
+   pair<bool, Link> sol;
+   if (l1.w > newPipe.w) {
+      sol.first = true;
+      sol.second = l1;
+   } else {
+      sol.first = false;
+   }
+   return sol;
+}
+
+Link& MyGraph::DFS(int v, const int& dest_v, vector<bool>& visited) {
+   visited.at(v) = true;
+   for(auto i = adjacency_list.at(v).begin(); i != adjacency_list.at(v).end(); i++) {
+      if(i->first == dest_v) {
+         return i->second;
+      }
+      if(!visited.at(i->first)) {
+         Link& highest_weight_yet = DFS(i->first, dest_v, visited);
+         if(highest_weight_yet.v1 != -1)
+            return (highest_weight_yet.w > i->second.w) ? highest_weight_yet : i->second;
+      }
+   }
+   return empty;
+}
+
+Link& MyGraph::findHighestWeightOnPath(int a, int b) {
+   vector<bool> visited(numberOfVertices + 1, false);
+   return DFS(a, b, visited);
 }

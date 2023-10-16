@@ -10,35 +10,54 @@ using namespace std;
 struct Link {
 
 public:
-
    int v1, v2;
    float w;
+   Link() {
+      v1 = -1;
+      v2 = -1;
+      w = -1;
+   };
+   Link(int v1, int v2, float w) {
+      this->v1 = v1;
+      this->v2 = v2;
+      this->w = w;
+   };
+   Link(const Link& other) {
+      v1 = other.v1;
+      v2 = other.v2;
+      w = other.w;
+   };
 };
 
 ostream& operator<<(ostream&, const Link&);
 
 class MyGraph {
 private:
-   vector< unordered_map<int, double> > adjacency_list;
+   Link empty; // Default Invalid Link.
    int numberOfVertices;
    int numberOfEdges;
 public:
+   vector< unordered_map<int, Link> > adjacency_list;
    MyGraph();
    MyGraph(int n);
    MyGraph(const MyGraph&);
-   MyGraph(string&&);
+   MyGraph(vector<Link>&, int n);
 
    bool addEdge(int a, int b, float w);
    void output(ostream& os);
    pair<bool, float> weight(int a, int b);
 
+   Link& findHighestWeightOnPath(int a, int b);
+   Link& DFS(int v, const int& dest_v, vector<bool>& visited);
 
 };
 
 class MyHelper {
-
 public:
+   MyGraph graph;
     MyHelper();
+    void buildGraph(vector<Link>&, int);
+    void output_graph();
     int x;
 };
 
