@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <chrono>
 #include "MyGraph.h"
+using namespace std::chrono;
 
 
 
@@ -33,7 +35,11 @@ int main()
 
    MyHelper helper;
 
+   auto start1 = high_resolution_clock::now();
    vector<Link>  res1 = Task1(n, l, helper);
+   auto end1 = high_resolution_clock::now();
+   auto elapsed1 = duration_cast<microseconds>(end1 - start1);
+   cout << "Time Duration of Task 1: " << elapsed1.count() << "\n";
 
    for (int i = 0; i < res1.size(); i++)
 	{
@@ -43,7 +49,11 @@ int main()
 
    for (int i = 0; i < m; i++)
 	{
+		auto start2 = high_resolution_clock::now();
    	   pair<bool, Link> res2 = Task2(n, l2, test[i], helper);
+	   auto end2 = high_resolution_clock::now();
+		auto elapsed2 = duration_cast<microseconds>(end2 - start2);
+
 	   cout << "(" << test[i] << ") : ";
 	   if (res2.first)
 		{
@@ -54,6 +64,7 @@ int main()
 		   cout << "not replaced";
 		}
 	  cout << endl;
+	  cout << "Time Duration of Task 2: " << elapsed2.count() << "\n";
 	}
 
 }

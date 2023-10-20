@@ -120,7 +120,6 @@ vector<Link> MyGraph::Kruschal(vector<Link>& pipes)
    std::vector<Link> finalMinimumSpanningTree;
    while(finalMinimumSpanningTree.size() < numberOfVertices - 1) {
       const Link& min_edge = ordered_edges.top();
-      std::cout << "Link: " << min_edge.v1 << ", " << min_edge.v2 << ", " << min_edge.w << "\n";
       int root_v1 = findset(min_edge.v1, parent);
       int root_v2 = findset(min_edge.v2, parent);
       if (root_v1 != root_v2) { // If they are in different sets
@@ -173,7 +172,6 @@ vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
 pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper) //Make MyHelper pass by value later!
 {
    // Properly tested for the given input file (Change helper.graph to the minimum spanning tree later).
-   helper.graph.output(std::cout);
    Link& l1 = helper.graph.findHighestWeightOnPath(newPipe.v1, newPipe.v2);
    pair<bool, Link> sol;
    if (l1.w > newPipe.w) {
