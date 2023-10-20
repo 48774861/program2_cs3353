@@ -41,19 +41,19 @@ int main()
 	}
    cout << "\n";
 
-//    for (int i = 0; i < m; i++)
-// 	{
-//    	   pair<bool, Link> res2 = Task2(n, l2, test[i], helper);
-// 	   cout << "(" << test[i] << ") : ";
-// 	   if (res2.first)
-// 		{
-// 		   cout << "replaced edge: " <<  "(" << res2.second << ") ";
-// 		}
-// 	   else
-// 		{
-// 		   cout << "not replaced";
-// 		}
-// 	  cout << endl;
-// 	}
+   for (int i = 0; i < m; i++)
+	{
+   	   pair<bool, Link> res2 = Task2(n, l2, test[i], helper);
+	   cout << "(" << test[i] << ") : ";
+	   if (res2.first)
+		{
+		   cout << "replaced edge: " <<  "(" << res2.second << ") ";
+		}
+	   else
+		{
+		   cout << "not replaced";
+		}
+	  cout << endl;
+	}
 
 }

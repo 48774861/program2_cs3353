@@ -29,8 +29,11 @@ public:
       v2 = other.v2;
       w = other.w;
    };
-   bool operator<(const Link& link2) {
+   bool operator<(const Link& link2) const {
       return (w < link2.w);
+   }
+   bool operator>(const Link& link2) const {
+      return (w > link2.w);
    }
 };
 
@@ -49,21 +52,26 @@ public:
    MyGraph(vector<Link>&, int n);
 
    bool addEdge(int a, int b, float w);
+   bool addEdge(const Link& link);
    void output(ostream& os);
    pair<bool, float> weight(int a, int b);
 
    Link& findHighestWeightOnPath(int a, int b);
    Link& DFS(int v, const int& dest_v, vector<bool>& visited);
+
    vector<Link> Kruschal(vector<Link>& pipes);
+   int findset(int i, vector<int>& parent);
 
 };
 
 class MyHelper {
 public:
-   MyGraph* graph;
+   MyGraph graph;
    MyHelper();
+   MyHelper(const MyHelper& other) {
+      graph = other.graph;
+   }
    void output_graph();
-   int x;
 };
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper);

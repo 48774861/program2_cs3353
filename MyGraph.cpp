@@ -57,6 +57,19 @@ bool MyGraph::addEdge(int a, int b, float w)
    }
    return false;
 }
+bool MyGraph::addEdge(const Link& link)
+{
+   if(link.v1 <= 0 || link.v1 > numberOfVertices || link.v2 <= 0 || link.v2 > numberOfVertices) {
+      return false;
+   }
+   if(adjacency_list.at(link.v1).find(link.v2) == adjacency_list.at(link.v1).end()) {
+      adjacency_list.at(link.v1).insert(std::make_pair(link.v2, link));
+      adjacency_list.at(link.v2).insert(std::make_pair(link.v1, link));
+      numberOfEdges++;
+      return true;
+   }
+   return false;
+}
 
 void MyGraph::output(ostream& os)
 {
@@ -93,50 +106,75 @@ pair<bool, float> MyGraph::weight(int a, int b)
 
 vector<Link> MyGraph::Kruschal(vector<Link>& pipes)
 {
-   // priority_queue<Link> ordered_edges;
-   // for(auto& element : pipes) {
-   //    ordered_edges.insert(element);
-   // }
+   priority_queue< Link, vector<Link>, greater<Link> > ordered_edges;
+   for(auto& element : pipes) {
+      ordered_edges.push(element);
+   } // O(e log e) for organizing the edges.
 
-   // vector<int> parent;
-   // vector<int> num(n + 1, 0);
-   // for(int i = 0; i < n + 1; i++) {
-   //    parent.push_back(i);
-   // }
+   vector<int> parent;
+   vector<int> num(numberOfVertices + 1, 0);
+   for(int i = 0; i < numberOfVertices + 1; i++) {
+      parent.push_back(i);
+   }
 
-   // //helper.graph is the minimum spanning tree.
-   // std::vector<Link> finalMinimumSpanningTree;
-   // helper.graph = MyGraph(n + 1);
-   // while(finalMinimumSpanningTree.size() < n - 1) {
-   //    Link& min_edge = ordered_edges.top();
+   std::vector<Link> finalMinimumSpanningTree;
+   while(finalMinimumSpanningTree.size() < numberOfVertices - 1) {
+      const Link& min_edge = ordered_edges.top();
+      std::cout << "Link: " << min_edge.v1 << ", " << min_edge.v2 << ", " << min_edge.w << "\n";
+      int root_v1 = findset(min_edge.v1, parent);
+      int root_v2 = findset(min_edge.v2, parent);
+      if (root_v1 != root_v2) { // If they are in different sets
+         finalMinimumSpanningTree.push_back(min_edge);
+         addEdge(min_edge);
+         // Merge Trees is here.
+         if (num.at(root_v1) > num.at(root_v2)) {
+            parent.at(root_v2) = root_v1;
+            num.at(root_v1) += num.at(root_v2);
+         } else { // If num.at(root_v1) < num.at(root_v2)
+            parent.at(root_v1) = root_v2;
+            num.at(root_v2) += num.at(root_v1);
+         }
+      }
+      ordered_edges.pop();
+   }
 
-   //    ordered_edges.pop();
-   // }
-
-   // return ordered_edges;
-   return pipes;
+   return finalMinimumSpanningTree;
+}
+int MyGraph::findset(int i, vector<int>& parent)
+{
+   // Find the root which is when a parent of a point is itself.
+   int root = i;
+   while (root != parent.at(root)) {
+      root = parent.at(root);
+   }
+   // Make each of the points in the path point to the parent.
+   int j = parent.at(i);
+   while (j != root) {
+      parent.at(i) = root;
+      i = j;
+      j = parent.at(i);
+   }
+   return root;
 }
 
 MyHelper::MyHelper()
 {
 }
 void MyHelper::output_graph() {
-   graph->output(std::cout);
+   graph.output(std::cout);
 }
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
 {
-   //MyGraph graph(pipes, n);
-   //helper.buildGraph(pipes, n);
-   MyGraph minimum_spanning_tree(n);
-   return minimum_spanning_tree.Kruschal(pipes);
-
+   helper.graph = MyGraph(n);
+   return helper.graph.Kruschal(pipes); // Properly adds edges to the MyGraph
 }
 
 pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper) //Make MyHelper pass by value later!
 {
    // Properly tested for the given input file (Change helper.graph to the minimum spanning tree later).
-   Link& l1 = helper.graph->findHighestWeightOnPath(newPipe.v1, newPipe.v2);
+   helper.graph.output(std::cout);
+   Link& l1 = helper.graph.findHighestWeightOnPath(newPipe.v1, newPipe.v2);
    pair<bool, Link> sol;
    if (l1.w > newPipe.w) {
       sol.first = true;
