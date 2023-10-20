@@ -91,29 +91,52 @@ pair<bool, float> MyGraph::weight(int a, int b)
    return std::make_pair(true, adjacency_list.at(a).at(b).w);
 }
 
+vector<Link> MyGraph::Kruschal(vector<Link>& pipes)
+{
+   // priority_queue<Link> ordered_edges;
+   // for(auto& element : pipes) {
+   //    ordered_edges.insert(element);
+   // }
+
+   // vector<int> parent;
+   // vector<int> num(n + 1, 0);
+   // for(int i = 0; i < n + 1; i++) {
+   //    parent.push_back(i);
+   // }
+
+   // //helper.graph is the minimum spanning tree.
+   // std::vector<Link> finalMinimumSpanningTree;
+   // helper.graph = MyGraph(n + 1);
+   // while(finalMinimumSpanningTree.size() < n - 1) {
+   //    Link& min_edge = ordered_edges.top();
+
+   //    ordered_edges.pop();
+   // }
+
+   // return ordered_edges;
+   return pipes;
+}
+
 MyHelper::MyHelper()
 {
 }
-void MyHelper::buildGraph(vector<Link>& pipes, int n)
-{
-   graph = MyGraph(pipes, n);
-}
 void MyHelper::output_graph() {
-   graph.output(std::cout);
+   graph->output(std::cout);
 }
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
 {
-   helper.buildGraph(pipes, n);
-   vector<Link> res = pipes;
-   return res;
+   //MyGraph graph(pipes, n);
+   //helper.buildGraph(pipes, n);
+   MyGraph minimum_spanning_tree(n);
+   return minimum_spanning_tree.Kruschal(pipes);
+
 }
 
 pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper) //Make MyHelper pass by value later!
 {
-   // Properly tested for the given input file.
-   
-   Link& l1 = helper.graph.findHighestWeightOnPath(newPipe.v1, newPipe.v2);
+   // Properly tested for the given input file (Change helper.graph to the minimum spanning tree later).
+   Link& l1 = helper.graph->findHighestWeightOnPath(newPipe.v1, newPipe.v2);
    pair<bool, Link> sol;
    if (l1.w > newPipe.w) {
       sol.first = true;

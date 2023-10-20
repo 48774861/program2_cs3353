@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <unordered_map>
+#include <queue>
+#include <set>
 #include <string>
 #include <stdexcept>
 
@@ -27,6 +29,9 @@ public:
       v2 = other.v2;
       w = other.w;
    };
+   bool operator<(const Link& link2) {
+      return (w < link2.w);
+   }
 };
 
 ostream& operator<<(ostream&, const Link&);
@@ -49,16 +54,16 @@ public:
 
    Link& findHighestWeightOnPath(int a, int b);
    Link& DFS(int v, const int& dest_v, vector<bool>& visited);
+   vector<Link> Kruschal(vector<Link>& pipes);
 
 };
 
 class MyHelper {
 public:
-   MyGraph graph;
-    MyHelper();
-    void buildGraph(vector<Link>&, int);
-    void output_graph();
-    int x;
+   MyGraph* graph;
+   MyHelper();
+   void output_graph();
+   int x;
 };
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper);
