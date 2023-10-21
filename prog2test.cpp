@@ -9,7 +9,7 @@ using namespace std::chrono;
 
 int main()
 {
-   ifstream ifile("../test2_1.txt");
+   ifstream ifile("../kruskal_worst_case.txt");
    int n, e;
    vector<float> satcost;
 

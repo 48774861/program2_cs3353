@@ -156,6 +156,48 @@ int MyGraph::findset(int i, vector<int>& parent)
    return root;
 }
 
+vector<Link> MyGraph::Prim(vector<Link>& pipes) {
+   vector< vector<float> > adjacency_matrix(numberOfVertices + 1, vector<float> (numberOfVertices + 1, std::numeric_limits<float>::max()));
+   for (auto& pipe : pipes) {
+      adjacency_matrix.at(pipe.v1).at(pipe.v2) = pipe.w;
+      adjacency_matrix.at(pipe.v2).at(pipe.v1) = pipe.w;
+	}
+
+   vector<int> minNeighbor(numberOfVertices + 1, 1);
+   vector<float> minWeight;
+   vector<bool> selected(numberOfVertices + 1, false);
+
+   for(int i = 0; i < numberOfVertices + 1; i++) {
+      minWeight.push_back(adjacency_matrix.at(1).at(i));
+   }
+
+   std::vector<Link> finalMinimumSpanningTree;
+
+   for(int count = 1; count <= numberOfVertices - 1; count++) {
+      float min = std::numeric_limits<float>::max();
+      int minindex = -1;
+      for(int i = 2; i < numberOfVertices + 1; i++) {
+         if(!selected.at(i) && minWeight.at(i) < min) {
+            min = minWeight.at(i);
+            minindex = i;
+         }
+      }
+      finalMinimumSpanningTree.push_back(Link(minNeighbor.at(minindex), minindex, min));
+      addEdge(minNeighbor.at(minindex), minindex, min);
+      selected.at(minindex) = true;
+
+      for(int i = 2; i < numberOfVertices + 1; i++) {
+         if(adjacency_matrix.at(minindex).at(i) < minWeight.at(i)) {
+            minWeight.at(i) = adjacency_matrix.at(minindex).at(i);
+            minNeighbor.at(i) = minindex;
+         }
+      }
+
+   }
+
+   return finalMinimumSpanningTree;
+}
+
 MyHelper::MyHelper()
 {
 }
@@ -165,32 +207,30 @@ void MyHelper::output_graph() {
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
 {
+   int densest = ((n-1)*n)/2;
    helper.graph = MyGraph(n);
-   return helper.graph.Kruschal(pipes); // Properly adds edges to the MyGraph
+   if(pipes.size() < densest*0.25) {
+      return helper.graph.Kruschal(pipes);
+   }
+   return helper.graph.Prim(pipes);
 }
 
 pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper) //Make MyHelper pass by value later!
 {
-   // Properly tested for the given input file (Change helper.graph to the minimum spanning tree later).
-   Link& l1 = helper.graph.findHighestWeightOnPath(newPipe.v1, newPipe.v2);
-   pair<bool, Link> sol;
-   if (l1.w > newPipe.w) {
-      sol.first = true;
-      sol.second = l1;
-   } else {
-      sol.first = false;
-   }
-   return sol;
+   // Find the path between the two points on new Pipe and find the highest weight on that path.
+   const Link& l1 = helper.copygraph->findHighestWeightOnPath(newPipe.v1, newPipe.v2);
+   // If you find a link with greater weight than the new Pipe, return that you need to replace it.
+   return (l1.w > newPipe.w) ? std::make_pair(true, l1) : std::make_pair(false, Link());
 }
 
-Link& MyGraph::DFS(int v, const int& dest_v, vector<bool>& visited) {
+const Link& MyGraph::DFS(int v, const int& dest_v, vector<bool>& visited) const {
    visited.at(v) = true;
    for(auto i = adjacency_list.at(v).begin(); i != adjacency_list.at(v).end(); i++) {
       if(i->first == dest_v) {
          return i->second;
       }
       if(!visited.at(i->first)) {
-         Link& highest_weight_yet = DFS(i->first, dest_v, visited);
+         const Link& highest_weight_yet = DFS(i->first, dest_v, visited);
          if(highest_weight_yet.v1 != -1)
             return (highest_weight_yet.w > i->second.w) ? highest_weight_yet : i->second;
       }
@@ -198,7 +238,7 @@ Link& MyGraph::DFS(int v, const int& dest_v, vector<bool>& visited) {
    return empty;
 }
 
-Link& MyGraph::findHighestWeightOnPath(int a, int b) {
+const Link& MyGraph::findHighestWeightOnPath(int a, int b) const {
    vector<bool> visited(numberOfVertices + 1, false);
    return DFS(a, b, visited);
 }

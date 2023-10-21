@@ -56,20 +56,23 @@ public:
    void output(ostream& os);
    pair<bool, float> weight(int a, int b);
 
-   Link& findHighestWeightOnPath(int a, int b);
-   Link& DFS(int v, const int& dest_v, vector<bool>& visited);
+   const Link& findHighestWeightOnPath(int a, int b) const;
+   const Link& DFS(int v, const int& dest_v, vector<bool>& visited) const;
 
    vector<Link> Kruschal(vector<Link>& pipes);
    int findset(int i, vector<int>& parent);
 
+   vector<Link> Prim(vector<Link>& pipes);
 };
 
 class MyHelper {
 public:
    MyGraph graph;
+   const MyGraph* copygraph;
    MyHelper();
    MyHelper(const MyHelper& other) {
-      graph = other.graph;
+      copygraph = &other.graph;
+      //graph = other.graph;
    }
    void output_graph();
 };
