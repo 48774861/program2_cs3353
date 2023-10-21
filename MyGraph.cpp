@@ -45,9 +45,9 @@ MyGraph::MyGraph(vector<Link>& pipes, int n)
 // Checks for if the vertices are out of range.
 bool MyGraph::addEdge(int a, int b, float w)
 {
-   if(a <= 0 || a > numberOfVertices || b <= 0 || b > numberOfVertices) {
-      return false;
-   }
+   // if(a <= 0 || a > numberOfVertices || b <= 0 || b > numberOfVertices) {
+   //    return false;
+   // }
    if(adjacency_list.at(a).find(b) == adjacency_list.at(a).end()) {
       Link link(a, b, w);
       adjacency_list.at(a).insert(std::make_pair(b, link));
@@ -59,9 +59,9 @@ bool MyGraph::addEdge(int a, int b, float w)
 }
 bool MyGraph::addEdge(const Link& link)
 {
-   if(link.v1 <= 0 || link.v1 > numberOfVertices || link.v2 <= 0 || link.v2 > numberOfVertices) {
-      return false;
-   }
+   // if(link.v1 <= 0 || link.v1 > numberOfVertices || link.v2 <= 0 || link.v2 > numberOfVertices) {
+   //    return false;
+   // }
    if(adjacency_list.at(link.v1).find(link.v2) == adjacency_list.at(link.v1).end()) {
       adjacency_list.at(link.v1).insert(std::make_pair(link.v2, link));
       adjacency_list.at(link.v2).insert(std::make_pair(link.v1, link));
@@ -104,7 +104,7 @@ pair<bool, float> MyGraph::weight(int a, int b)
    return std::make_pair(true, adjacency_list.at(a).at(b).w);
 }
 
-vector<Link> MyGraph::Kruschal(vector<Link>& pipes)
+vector<Link> MyGraph::Kruskal(vector<Link>& pipes)
 {
    priority_queue< Link, vector<Link>, greater<Link> > ordered_edges;
    for(auto& element : pipes) {
@@ -210,7 +210,7 @@ vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
    int densest = ((n-1)*n)/2;
    helper.graph = MyGraph(n);
    if(pipes.size() < densest*0.25) {
-      return helper.graph.Kruschal(pipes);
+      return helper.graph.Kruskal(pipes);
    }
    return helper.graph.Prim(pipes);
 }

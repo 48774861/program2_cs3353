@@ -59,7 +59,7 @@ public:
    const Link& findHighestWeightOnPath(int a, int b) const;
    const Link& DFS(int v, const int& dest_v, vector<bool>& visited) const;
 
-   vector<Link> Kruschal(vector<Link>& pipes);
+   vector<Link> Kruskal(vector<Link>& pipes);
    int findset(int i, vector<int>& parent);
 
    vector<Link> Prim(vector<Link>& pipes);

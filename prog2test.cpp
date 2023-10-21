@@ -9,7 +9,7 @@ using namespace std::chrono;
 
 int main()
 {
-   ifstream ifile("../kruskal_worst_case.txt");
+   ifstream ifile("../kruskal_worst_sparse_graph.txt");
    int n, e;
    vector<float> satcost;
 
