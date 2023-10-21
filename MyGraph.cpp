@@ -45,9 +45,9 @@ MyGraph::MyGraph(vector<Link>& pipes, int n)
 // Checks for if the vertices are out of range.
 bool MyGraph::addEdge(int a, int b, float w)
 {
-   // if(a <= 0 || a > numberOfVertices || b <= 0 || b > numberOfVertices) {
-   //    return false;
-   // }
+   if(a <= 0 || a > numberOfVertices || b <= 0 || b > numberOfVertices) {
+      return false;
+   }
    if(adjacency_list.at(a).find(b) == adjacency_list.at(a).end()) {
       Link link(a, b, w);
       adjacency_list.at(a).insert(std::make_pair(b, link));
@@ -59,9 +59,9 @@ bool MyGraph::addEdge(int a, int b, float w)
 }
 bool MyGraph::addEdge(const Link& link)
 {
-   // if(link.v1 <= 0 || link.v1 > numberOfVertices || link.v2 <= 0 || link.v2 > numberOfVertices) {
-   //    return false;
-   // }
+   if(link.v1 <= 0 || link.v1 > numberOfVertices || link.v2 <= 0 || link.v2 > numberOfVertices) {
+      return false;
+   }
    if(adjacency_list.at(link.v1).find(link.v2) == adjacency_list.at(link.v1).end()) {
       adjacency_list.at(link.v1).insert(std::make_pair(link.v2, link));
       adjacency_list.at(link.v2).insert(std::make_pair(link.v1, link));
@@ -84,7 +84,7 @@ void MyGraph::output(ostream& os)
       // Prints all edges with the smaller vertex before the larger vertex.
       for(auto& edge : adjacency_list.at(v1)) {
          if(edge.first > v1) {
-            os << "\n" << edge.second;
+            os << "\n" << v1 << " " << edge.first << " " << edge.second.w;
          }
       }
    }
@@ -106,23 +106,27 @@ pair<bool, float> MyGraph::weight(int a, int b)
 
 vector<Link> MyGraph::Kruskal(vector<Link>& pipes)
 {
-   priority_queue< Link, vector<Link>, greater<Link> > ordered_edges;
-   for(auto& element : pipes) {
-      ordered_edges.push(element);
-   } // O(e log e) for organizing the edges.
+   // Sorts the edges in from least to greatest weight.
+   std::sort(pipes.begin(), pipes.end());
 
-   vector<int> parent;
-   vector<int> num(numberOfVertices + 1, 0);
+   vector<int> parent; // Vector showing the parent of each point.
+   vector<int> num(numberOfVertices + 1, 0); // Vector holding the heights of each root's tree.
    for(int i = 0; i < numberOfVertices + 1; i++) {
       parent.push_back(i);
    }
 
    std::vector<Link> finalMinimumSpanningTree;
+   int i = 0;
    while(finalMinimumSpanningTree.size() < numberOfVertices - 1) {
-      const Link& min_edge = ordered_edges.top();
+      const Link& min_edge = pipes.at(i);
+
+      // Find the root of the tree that each vertex of the minimum edge.
       int root_v1 = findset(min_edge.v1, parent);
       int root_v2 = findset(min_edge.v2, parent);
-      if (root_v1 != root_v2) { // If they are in different sets
+
+      // If the roots are different (i.e. the vertices are in different trees),
+      // Add the minimum edge to the minimum spanning tree and merge the trees together.
+      if (root_v1 != root_v2) {
          finalMinimumSpanningTree.push_back(min_edge);
          addEdge(min_edge);
          // Merge Trees is here.
@@ -134,7 +138,8 @@ vector<Link> MyGraph::Kruskal(vector<Link>& pipes)
             num.at(root_v2) += num.at(root_v1);
          }
       }
-      ordered_edges.pop();
+      
+      i++;
    }
 
    return finalMinimumSpanningTree;
@@ -156,48 +161,6 @@ int MyGraph::findset(int i, vector<int>& parent)
    return root;
 }
 
-vector<Link> MyGraph::Prim(vector<Link>& pipes) {
-   vector< vector<float> > adjacency_matrix(numberOfVertices + 1, vector<float> (numberOfVertices + 1, std::numeric_limits<float>::max()));
-   for (auto& pipe : pipes) {
-      adjacency_matrix.at(pipe.v1).at(pipe.v2) = pipe.w;
-      adjacency_matrix.at(pipe.v2).at(pipe.v1) = pipe.w;
-	}
-
-   vector<int> minNeighbor(numberOfVertices + 1, 1);
-   vector<float> minWeight;
-   vector<bool> selected(numberOfVertices + 1, false);
-
-   for(int i = 0; i < numberOfVertices + 1; i++) {
-      minWeight.push_back(adjacency_matrix.at(1).at(i));
-   }
-
-   std::vector<Link> finalMinimumSpanningTree;
-
-   for(int count = 1; count <= numberOfVertices - 1; count++) {
-      float min = std::numeric_limits<float>::max();
-      int minindex = -1;
-      for(int i = 2; i < numberOfVertices + 1; i++) {
-         if(!selected.at(i) && minWeight.at(i) < min) {
-            min = minWeight.at(i);
-            minindex = i;
-         }
-      }
-      finalMinimumSpanningTree.push_back(Link(minNeighbor.at(minindex), minindex, min));
-      addEdge(minNeighbor.at(minindex), minindex, min);
-      selected.at(minindex) = true;
-
-      for(int i = 2; i < numberOfVertices + 1; i++) {
-         if(adjacency_matrix.at(minindex).at(i) < minWeight.at(i)) {
-            minWeight.at(i) = adjacency_matrix.at(minindex).at(i);
-            minNeighbor.at(i) = minindex;
-         }
-      }
-
-   }
-
-   return finalMinimumSpanningTree;
-}
-
 MyHelper::MyHelper()
 {
 }
@@ -207,38 +170,47 @@ void MyHelper::output_graph() {
 
 vector<Link> Task1(int n, vector<Link>& pipes, MyHelper& helper)
 {
-   int densest = ((n-1)*n)/2;
    helper.graph = MyGraph(n);
-   if(pipes.size() < densest*0.25) {
-      return helper.graph.Kruskal(pipes);
-   }
-   return helper.graph.Prim(pipes);
+   return helper.graph.Kruskal(pipes); // Builds helper.graph as the Minimum Spanning Tree using Kruskal's Algorithm.
 }
 
-pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper) //Make MyHelper pass by value later!
+pair<bool, Link> Task2(int n, vector<Link>& pipes, Link newPipe, MyHelper helper)
 {
-   // Find the path between the two points on new Pipe and find the highest weight on that path.
+   // Find the only path between the two points in new Pipe in the current MST.
+   // Gets the edge with the highest weight on that path.
    const Link& l1 = helper.copygraph->findHighestWeightOnPath(newPipe.v1, newPipe.v2);
-   // If you find a link with greater weight than the new Pipe, return that you need to replace it.
+   // If you find a link with greater weight than the new Pipe, you should add the new Pipe.
+   // If not, you should not add the new Pipe.
    return (l1.w > newPipe.w) ? std::make_pair(true, l1) : std::make_pair(false, Link());
 }
 
+// Depth First Search Algorithm that finds the path between two points in the graph (assuming it is a MST) and returns the edge of the highest weight in that path.
 const Link& MyGraph::DFS(int v, const int& dest_v, vector<bool>& visited) const {
+
    visited.at(v) = true;
+
+   // Examine each edge starting from the current vertex we are at and going to an unvisited vertex.
    for(auto i = adjacency_list.at(v).begin(); i != adjacency_list.at(v).end(); i++) {
+
+      // If there current edge we are examining goes to the our Final Destination Vertex, 
+      // return the weight of that edge.
       if(i->first == dest_v) {
          return i->second;
       }
+
       if(!visited.at(i->first)) {
-         const Link& highest_weight_yet = DFS(i->first, dest_v, visited);
+         const Link& highest_weight_yet = DFS(i->first, dest_v, visited); // Continues along the current path.
+         
+         // If the current edge is on our intended path, the highest_weight_yet will have the highest weight we have found on the path to the final destination.
+         // If so, return the current edge's weight if it is higher than the heighest weight we have found.
          if(highest_weight_yet.v1 != -1)
             return (highest_weight_yet.w > i->second.w) ? highest_weight_yet : i->second;
       }
    }
-   return empty;
+   return empty; // We have reached the end of the current path, so return a Link with v1 = -1.
 }
 
 const Link& MyGraph::findHighestWeightOnPath(int a, int b) const {
-   vector<bool> visited(numberOfVertices + 1, false);
+   vector<bool> visited(numberOfVertices + 1, false); // Vector that tracks whether a point has been visited or not.
    return DFS(a, b, visited);
 }
