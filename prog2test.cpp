@@ -9,7 +9,7 @@ using namespace std::chrono;
 
 int main()
 {
-   ifstream ifile("../test2_1.txt");
+   ifstream ifile("../kruskal_worst_case.txt");
    int n, e;
    vector<float> satcost;
 
@@ -32,15 +32,6 @@ int main()
 	   ifile >> s.v1 >> s.v2 >> s.w;
 	   test.push_back(s);
 	}
-
-	MyGraph graph1(l, n);
-	graph1.output(cout);
-	MyGraph graph2(graph1);
-	graph2.output(cout);
-	auto result = graph2.weight(5,1);
-	auto result2 = graph2.weight(1,3);
-	cout << result.first << " " << result.second << "\n";
-	cout << result2.first << " " << result2.second << "\n";
 	
 
    MyHelper helper;
